@@ -1,0 +1,123 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+//计算一年有多少天 
+int Year(int year)
+{
+    //判断平/闰年 
+    if (year % 4 == 0 && year % 100 == 0 || year % 400 == 0)
+        return 366;//闰年366 
+    else
+        return 365;//平年365 
+}
+
+//计算一个月有多少天 
+int days(int year, int month)
+{
+    switch (month)
+    {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+    case 8:
+    case 10:
+    case 12: return 31;//大月31天
+
+    case 4:
+    case 6:
+    case 9:
+    case 11: return 30;//小月30天
+
+    case 2:  if (year % 4 == 0 && year % 100 == 0 || year % 400 == 0)
+        return 29;
+          else
+        return 28;//二月天数根据是否是闰年来确定
+
+    default: return 0;
+    }
+}
+int chaxun(int year, int month) {//计算每月第一天是当前年份的第几天
+    int  s = 0;
+    switch (month)
+    {
+    case 12:  s += 30;
+    case 11:  s += 31;
+    case 10:  s += 30;
+    case  9:  s += 31;
+    case  8:  s += 31;
+    case  7:  s += 30;
+    case  6:  s += 31;
+    case  5:  s += 30;
+    case  4:  s += 31;
+    case  3:  s += 28;
+    case  2:  s += 31;
+    case  1:  s += 1;
+    }
+    if ((year % 4 == 0 && year % 100 != 0 || year % 400 == 0) && month >= 3)
+        s++;
+    return s;
+}
+int main()
+{
+    int tianshu;
+    int month;
+    int year;
+    printf("请输入想要显示的日历(年份):");
+    scanf("%d", &year);
+    printf("请输入要查询的月数:");
+    scanf("%d", &month);
+
+    int c = chaxun(year, month);
+    int weekday = (year - 1 + (year - 1) / 4 - (year - 1) / 100 + (year - 1) / 400 + c) % 7;//根据万年历公式算出每月一号是星期几
+    printf("\n\n");
+    printf("        ====%d年日历====           \n", year);
+    printf("\n");
+    printf("            ===%d月===              \n", month);
+    printf("日   一   二   三   四   五   六\n");
+    printf("================================\n");
+    for (int j = 0; j < weekday; j++) {
+        printf("     ");
+    } //是星期几就打印几个空格，保证日期与星期对齐 星期天用0表示，即无需打印空格 
+
+
+    int day = days(year, month);//算出当前月份的天数 
+    tianshu = 1;//每个月都是从1号开始 
+    while (tianshu <= day)
+    {
+        printf("%2d   ", tianshu);
+        tianshu++;
+
+        weekday = (weekday + 1) % 7; // 每打印一天就要判断是否到达周六，到了周六就要换行
+        //因为是在周六换行，所以得先更新weekday再判断  
+
+        if (weekday % 7 == 0)//到周六时，正好一个星期7天过完，开始下一个星期
+            printf("\n");
+    }
+    printf("\n");
+    int riqi;
+    if ((year == 2019 && month == 1) || (year == 1970 && month == 4) || (year == 2003 && month == 10) || (year == 2007 && month == 10) || (year == 1981 && month == 9)) {
+        printf("该月有航天大事件发生，请输入日期查询:");//如果该年该月有航天大事件，给出提醒
+        scanf("%d", &riqi);//输入日期查询
+        if (year == 2019 && month == 1 && riqi == 3) {
+            printf("嫦娥四号传回人类首张月球背面影像图 - 2019年1月3日上午10点26分，\n“嫦娥四号”探测器成功着陆在月球背面东经17706度、南纬45.5度附近的预选着陆区，\n并通过“鹊桥”中继星传回了世界第一张近距离拍摄的月背影像图，\n揭开了月背的神秘面纱");
+        }
+        else if (year == 1970 && month == 4 && riqi == 24) {
+            printf("1970年4月24日21时31分，中国“东方红”一号飞向太空。\n这是中国发射的第一颗人造卫星。");
+        }
+        else if (year == 2003 && month == 10 && riqi == 15) {
+            printf("神舟五号飞船是中华人民共和国发射的第一艘载人航天飞船，搭载航天员杨利伟于北京时间2003年10月15日9时整在酒泉卫星发射中心发射，\n在轨运行14圈，历时21小时23分，\n其返回舱于北京时间2003年10月16日6时23分返回内蒙古主着陆场，其轨道舱留轨运行半年。");
+        }
+        else if (year == 2007 && month == 10 && riqi == 24) {
+            printf("2007年10月24日18时05分，\n搭载着中国首颗探月卫星嫦娥一号的长征三号甲运载火箭在西昌卫星发射中心三号塔架点火成功发射。\n2009年3月1日完成使命，撞向月球预定地点。");
+        }
+        else if (year == 1981 && month == 9 && riqi == 20) {
+            printf("1981年9月20日,\n我国用“风暴一号”运载火箭成功发射实践二号、实践二号甲、实践二号乙三颗科学实验卫星,\n这让我国成为世界上第四个掌握“一箭多星”技术的国家。\n“一箭三星”标志着我国发射技术、火箭与卫星分离技术、多星在轨运行管理技术的突破。");
+        }
+    }
+    //当查询日期当天有航天大事件时，输出事件
+
+    return 0;
+}
