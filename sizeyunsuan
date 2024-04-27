@@ -2,93 +2,137 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <ctype.h> 
 
-// 函数声明
-void generateExercise(char* expression, int* result);
+#define MAX_QUESTIONS 100
+#define MAX_BUFFER_SIZE 1024
+
+// 生成加法题目
+int generateAddition(int maxNum, int* a, int* b) {
+    *a = rand() % maxNum + 1;
+    *b = rand() % maxNum + 1;
+    return *a + *b;
+}
+
+// 生成减法题目
+int generateSubtraction(int maxNum, int* a, int* b) {
+    *a = rand() % maxNum + 1;
+    *b = rand() % *a + 1;
+    return *a - *b;
+}
+
+// 生成乘法题目
+int generateMultiplication(int maxNum, int* a, int* b) {
+    *a = rand() % maxNum + 1;
+    *b = rand() % maxNum + 1;
+    return *a * *b;
+}
+
+// 生成除法题目
+int generateDivision(int maxNum, int* a, int* b) {
+    *a = rand() % maxNum + 1;
+    *b = rand() % *a + 1;
+    return *a / *b;
+}
 
 int main() {
-    char expression[100];
-    int result, userAnswer;
-    char continueAnswer = 'Y';
-
-    // 初始化随机数生成器
     srand(time(NULL));
+    int numQuestions, maxNum;
+    int operations[4] = { 0 }; // 0: +, 1: -, 2: *, 3: /
+    int hasParentheses = 0, hasDecimal = 0;
+    int outputMethod = 0; // 0: console, 1: file
+    FILE* outputFile = NULL;
 
-    // 使用循环让用户可以选择继续答题
-    do {
-        // 生成四则运算题目
-        generateExercise(expression, &result);
+    // 获取用户设置
+    printf("Enter the number of questions: ");
+    scanf("%d", &numQuestions);
+    printf("Enter the maximum number: ");
+    scanf("%d", &maxNum);
+    printf("Select operations (0: +, 1: -, 2: *, 3: /): ");
+    for (int i = 0; i < 4; i++) {
+        scanf("%d", &operations[i]);
+    }
+    printf("Include parentheses? (0: no, 1: yes) ");
+    scanf("%d", &hasParentheses);
+    printf("Include decimal? (0: no, 1: yes) ");
+    scanf("%d", &hasDecimal);
+    printf("Select output method (0: console, 1: file) ");
+    scanf("%d", &outputMethod);
 
-        // 输出题目
-        printf("请计算以下题目的答案：\n%s\n", expression);
+    if (outputMethod == 1) {
+        outputFile = fopen("output.txt", "w");
+        if (outputFile == NULL) {
+            printf("Error opening output file.\n");
+            return 1;
+        }
+    }
 
-        // 用户输入答案
-        printf("请输入你的答案：");
-        scanf("%d", &userAnswer);
-        // 清空输入缓冲区，防止读取到多余的字符
-        while (getchar() != '\n');
-
-        // 检查答案是否正确
-        if (userAnswer == result) {
-            printf("答案正确！\n");
+    // 生成并输出题目
+    for (int i = 0; i < numQuestions; i++) {
+        int a, b, result;
+        int op = rand() % 4;
+        while (operations[op] == 0) {
+            op = rand() % 4;
+        }
+        switch (op) {
+        case 0:
+            result = generateAddition(maxNum, &a, &b);
+            if (hasParentheses && rand() % 2 == 0) {
+                printf("(%d + %d) = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "(%d + %d) = ?\n", a, b);
+            }
+            else {
+                printf("%d + %d = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "%d + %d = ?\n", a, b);
+            }
+            break;
+        case 1:
+            result = generateSubtraction(maxNum, &a, &b);
+            if (hasParentheses && rand() % 2 == 0) {
+                printf("(%d - %d) = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "(%d - %d) = ?\n", a, b);
+            }
+            else {
+                printf("%d - %d = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "%d - %d = ?\n", a, b);
+            }
+            break;
+        case 2:
+            result = generateMultiplication(maxNum, &a, &b);
+            if (hasParentheses && rand() % 2 == 0) {
+                printf("(%d * %d) = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "(%d * %d) = ?\n", a, b);
+            }
+            else {
+                printf("%d * %d = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "%d * %d = ?\n", a, b);
+            }
+            break;
+        case 3:
+            result = generateDivision(maxNum, &a, &b);
+            if (hasParentheses && rand() % 2 == 0) {
+                printf("(%d / %d) = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "(%d / %d) = ?\n", a, b);
+            }
+            else {
+                printf("%d / %d = ?\n", a, b);
+                if (outputFile) fprintf(outputFile, "%d / %d = ?\n", a, b);
+            }
+            break;
+        }
+        if (hasDecimal) {
+            printf("%.2f\n", (float)result);
+            if (outputFile) fprintf(outputFile, "%.2f\n", (float)result);
         }
         else {
-            printf("答案错误，正确答案是：%d\n", result);
+            printf("%d\n", result);
+            if (outputFile) fprintf(outputFile, "%d\n", result);
         }
+    }
 
-        // 询问用户是否继续答题
-        printf("是否继续答题？(Y/N): ");
-        scanf("%c", &continueAnswer);
-        // 清空输入缓冲区
-        while (getchar() != '\n');
-
-        // 转换为小写，以便比较
-        continueAnswer = tolower(continueAnswer);
-
-    } while (continueAnswer != 'n');
-
-    printf("感谢使用，再见！\n");
+    if (outputFile) {
+        fclose(outputFile);
+        printf("Output saved to file 'output.txt'.\n");
+    }
 
     return 0;
 }
-
-// 生成四则运算题目
-void generateExercise(char* expression, int* result) {
-    int a, b;
-    char op;
-    int randomNumber = rand() % 4; // 生成0到3的随机数
-
-    a = rand() % 100 + 1; // 生成1到100的随机数
-    b = rand() % 100 + 1; // 生成1到100的随机数
-
-    switch (randomNumber) {
-    case 0:
-        op = '+';
-        *result = a + b;
-        break;
-    case 1:
-        op = '-';
-        *result = a - b;
-        break;
-    case 2:
-        op = '*';
-        *result = a * b;
-        break;
-    case 3:
-        op = '/';
-        // 确保不会除以零
-        do {
-            b = rand() % 100 + 1;
-        } while (b == 0 || a % b != 0); // 确保结果是整数
-        *result = a / b;
-        break;
-    default:
-        printf("发生错误：随机数生成器出现问题。\n");
-        exit(1);
-    }
-
-    // 构造表达式字符串
-    sprintf(expression, "%d %c %d = ?", a, op, b);
-}
-
